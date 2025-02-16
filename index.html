@@ -37,15 +37,6 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        .editor p.drop-cap:first-letter {
-            float: left;
-            font-size: 4em;
-            padding: 0.1em 0.1em 0 0;
-            line-height: 0.65;
-            font-weight: bold;
-        }
-
-
         .container {
             display: grid;
             grid-template-columns: auto 1fr;
@@ -173,6 +164,17 @@
         .line-height-control input[type="number"] {
             width: 60px;
         }
+        .editor.empty {
+            color: #999;
+        }
+
+        .editor p:first-of-type:first-letter {
+            float: left;
+            font-size: 4em;
+            padding: 0.1em 0.1em 0 0;
+            line-height: 0.65;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -241,7 +243,7 @@
                 </div>
                 <button onclick="saveContent()">Save</button>
             </div>
-            <div class="editor" id="rcontent" contenteditable="true"></div>
+            <div class="editor" id="rcontent" contenteditable="true">Start typing from here...</div>
         </main>
     </div>
 
@@ -272,6 +274,17 @@
             } else {
                 document.execCommand('formatBlock', false, `<${tag}>`);
             }
+            
+            // If converting the only paragraph to a heading, create a new paragraph
+            const headings = editor.querySelectorAll('h1, h2, h3');
+            const paragraphs = editor.querySelectorAll('p');
+            
+            if (headings.length > 0 && paragraphs.length === 0) {
+                const newParagraph = document.createElement('p');
+                newParagraph.innerHTML = '<br>';
+                editor.appendChild(newParagraph);
+            }
+            
             updateHeadingsList();
         }
 
@@ -385,8 +398,89 @@
             });
         }
 
+        // Make first letter of first para larger 
+
+        function handleNewParagraph(e) {
+            if (e.key === 'Enter') {
+                // Get the current selection
+                const selection = window.getSelection();
+                if (selection.rangeCount === 0) return;
+                
+                const range = selection.getRangeAt(0);
+                const startNode = range.startContainer;
+                
+                // Find if we're in a heading - check both the startNode and its parent
+                let heading = null;
+                if (startNode.nodeType === 3) { // Text node
+                    if (startNode.parentElement.tagName?.match(/^H[1-3]$/i)) {
+                        heading = startNode.parentElement;
+                    }
+                } else if (startNode.tagName?.match(/^H[1-3]$/i)) {
+                    heading = startNode;
+                }
+                
+                if (heading) {
+                    // Prevent default to handle paragraph creation manually
+                    e.preventDefault();
+                    
+                    // Create and insert new paragraph
+                    const newParagraph = document.createElement('p');
+                    newParagraph.innerHTML = '<br>';
+                    
+                    // Insert after the heading
+                    if (heading.nextSibling) {
+                        editor.insertBefore(newParagraph, heading.nextSibling);
+                    } else {
+                        editor.appendChild(newParagraph);
+                    }
+                    
+                    // Move cursor to new paragraph immediately
+                    const newRange = document.createRange();
+                    newRange.setStart(newParagraph, 0);
+                    newRange.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                    
+                    // Update headings list and statistics immediately
+                    updateHeadingsList();
+                    updateStatistics();
+                }
+            }
+        }
+
+        // Initialize placeholder state
+        if (editor.textContent.trim() === '') {
+            editor.textContent = 'Start typing from here...';
+            editor.classList.add('empty');
+        }
+
+        editor.addEventListener('focus', function() {
+            if (editor.textContent === 'Start typing from here...') {
+                editor.textContent = '';
+                editor.classList.remove('empty');
+                // Ensure content is wrapped in a paragraph
+                document.execCommand('formatBlock', false, '<p>');
+            }
+        });
+
+        editor.addEventListener('blur', function() {
+            if (editor.textContent.trim() === '') {
+                editor.textContent = 'Start typing from here...';
+                editor.classList.add('empty');
+            }
+        });
+
+        // Add the event listener
+        editor.addEventListener('keydown', handleNewParagraph);
+
         // Event listeners
         editor.addEventListener('input', () => {
+            if (editor.textContent.trim() !== '') {
+                // Ensure content is in a paragraph if it isn't already
+                if (!editor.querySelector('p') && !editor.querySelector('h1,h2,h3')) {
+                    document.execCommand('formatBlock', false, '<p>');
+                }
+            }
             updateHeadingsList();
             updateHeadingSelect();
             updateStatistics();
@@ -398,6 +492,9 @@
 
         // Initialize statistics
         updateStatistics();
+
+
+
     </script>
 </body>
 </html>
