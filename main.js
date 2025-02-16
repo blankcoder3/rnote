@@ -92,19 +92,6 @@ function updateStatistics() {
 }
 
 
-
-// Save content
-function saveContent() {
-    const content = editor.innerText;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'notepad-content.txt';
-    a.click();
-    window.URL.revokeObjectURL(url);
-}
-
 // Update heading select based on current cursor position
 function updateHeadingSelect() {
     const selection = window.getSelection();
@@ -250,3 +237,5 @@ editor.addEventListener('mouseup', updateHeadingSelect);
 
 // Initialize statistics
 updateStatistics();
+
+
