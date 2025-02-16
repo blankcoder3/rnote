@@ -7,19 +7,14 @@
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lora:wght@400;700&family=Source+Code+Pro&family=Merriweather:wght@400;700&Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+
+    </style>
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
             <button class="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
-            <div class="headings-list"></div>
-            <div class="statistics">
-                <p>Lines: <span id="lineCount">0</span></p>
-                <p>Words: <span id="wordCount">0</span></p>
-                <p>Characters: <span id="charCount">0</span></p>
-            </div>
-        </aside>
-        <main class="main-content">
             <div class="toolbar">
                 <button onclick="formatText('bold')"><i class="fa-solid fa-bold"></i></button>
                 <button onclick="formatText('italic')"><i class="fa-solid fa-italic"></i></button>
@@ -79,6 +74,14 @@
                 
                 <button onclick="saveContent()">Save</button>
             </div>
+            <div class="headings-list"></div>
+            <div class="statistics">
+                <p>Lines: <span id="lineCount">0</span></p>
+                <p>Words: <span id="wordCount">0</span></p>
+                <p>Characters: <span id="charCount">0</span></p>
+            </div>
+        </aside>
+        <main class="main-content">
             <div class="editor" id="rcontent" contenteditable="true">Start typing from here...</div>
         </main>
     </div>
