@@ -113,7 +113,7 @@ body {
     /* Centers items horizontally */
     flex-wrap: wrap;
     /* Allows items to wrap if needed */
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 .toolbar button,
