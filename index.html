@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lora:wght@400;700&family=Source+Code+Pro&family=Merriweather:wght@400;700&Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-
-    </style>
 </head>
 <body>
     <div class="container">
@@ -33,6 +30,12 @@
                     <option value="Merriweather">Source Serif Pro</option>
                     <option value="Merriweather">Merriweather</option>
                 </select>
+                <div class="font-upload">
+                    <input type="file" id="fontUpload" accept=".ttf,.otf,.woff,.woff2" style="display: none" onchange="handleFontUpload(event)">
+                    <button onclick="document.getElementById('fontUpload').click()">
+                        <i class="fa-solid fa-upload"></i> Upload Custom Font
+                    </button>
+                </div>
                 <div class="font-size-control">
                     <select id="fontSize" onchange="handleFontSizeChange(this.value)">
                         <option value="12">12px</option>
@@ -88,5 +91,6 @@
 
     <script src="./main.js"></script>  
     <script src="./downloadhandler.js"></script>
+    <script src="./customfont.js"></script>
 </body>
 </html>
