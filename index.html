@@ -1,1 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rnote</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lora:wght@400;700&family=Source+Code+Pro&family=Merriweather:wght@400;700&Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --menu-bg: #f5f5f5;
+            --toolbar-bg: #eeeeee;
+            --font-size: 16px;
+            --line-height: 1.5;
+            --font-family: 'Roboto', sans-serif;
+        }
 
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --menu-bg: #2d2d2d;
+            --toolbar-bg: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .editor p.drop-cap:first-letter {
+            float: left;
+            font-size: 4em;
+            padding: 0.1em 0.1em 0 0;
+            line-height: 0.65;
+            font-weight: bold;
+        }
+
+
+        .container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background-color: var(--menu-bg);
+            padding: 1rem;
+            width: 250px;
+            transition: width 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            width: 50px;
+        }
+
+        .sidebar-toggle {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            background: none;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .headings-list {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed .headings-list,
+        .sidebar.collapsed .statistics {
+            display: none;
+        }
+
+        .statistics {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--text-color);
+        }
+
+        .statistics p {
+            margin: 0.2rem 0;
+            font-family: var(--font-family);
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            /*font-size: 0.9rem;*/
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            background-color: var(--toolbar-bg);
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .toolbar button,
+        .toolbar select {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .toolbar button:hover,
+        .toolbar select:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .editor {
+            flex-grow: 1;
+            padding: 1rem;
+            outline: none;
+            border: none;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            resize: none;
+        }
+
+        .heading-item {
+            cursor: pointer;
+            padding: 0.25rem 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .line-height-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .font-size-control input[type="number"],
+        .line-height-control input[type="number"] {
+            width: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <button class="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
+            <div class="headings-list"></div>
+            <div class="statistics">
+                <p>Lines: <span id="lineCount">0</span></p>
+                <p>Words: <span id="wordCount">0</span></p>
+                <p>Characters: <span id="charCount">0</span></p>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="toolbar">
+                <button onclick="formatText('bold')">Bold</button>
+                <button onclick="formatText('italic')">Italic</button>
+                <button onclick="formatText('insertUnorderedList')">List</button>
+                <select id="headingSelect" onchange="formatHeading(this.value)">
+                    <option value="p">Para</option>
+                    <option value="h1">H1</option>
+                    <option value="h2">H2</option>
+                    <option value="h3">H3</option>
+                </select>
+                <select id="fontFamily" onchange="updateFont(this.value)">
+                    <option value="Roboto">Roboto</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Lora">Lora</option>
+                    <option value="Source Code Pro">Source Code Pro</option>
+                    <option value="Merriweather">Source Serif Pro</option>
+                    <option value="Merriweather">Merriweather</option>
+                </select>
+                <div class="font-size-control">
+                    <select id="fontSize" onchange="handleFontSizeChange(this.value)">
+                        <option value="12">12px</option>
+                        <option value="14">14px</option>
+                        <option value="16" selected>16px</option>
+                        <option value="18">18px</option>
+                        <option value="20">20px</option>
+                        <option value="24">24px</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input type="number" id="customFontSize" value="16" style="display: none" />
+                </div>
+                <div class="line-height-control">
+                    <select id="lineHeight" onchange="updateLineHeight(this.value)">
+                        <option value="1">1x</option>
+                        <option value="2">2x</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input type="number" 
+                           id="customLineHeight" 
+                           min="0.5" 
+                           max="5" 
+                           step="0.1" 
+                           value="1.5" 
+                           style="display: none" 
+                           onchange="updateCustomLineHeight(this.value)">
+                </div>
+                <button onclick="toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <div class="color-picker">
+                    <label>Background:</label>
+                    <input type="color" onchange="updateColors('bg', this.value)">
+                    <label>Text:</label>
+                    <input type="color" onchange="updateColors('text', this.value)">
+                </div>
+                <button onclick="saveContent()">Save</button>
+            </div>
+            <div class="editor" id="rcontent" contenteditable="true"></div>
+        </main>
+    </div>
+
+    <script>
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const editor = document.querySelector('.editor');
+        const headingsList = document.querySelector('.headings-list');
+        const headingSelect = document.getElementById('headingSelect');
+        const lineHeightSelect = document.getElementById('lineHeight');
+        const customLineHeightInput = document.getElementById('customLineHeight');
+
+
+        // Toggle sidebar
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Text formatting functions
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            updateHeadingsList();
+        }
+
+        function formatHeading(tag) {
+            if (tag === 'p') {
+                document.execCommand('formatBlock', false, '<p>');
+            } else {
+                document.execCommand('formatBlock', false, `<${tag}>`);
+            }
+            updateHeadingsList();
+        }
+
+        // Font controls
+        function updateFont(fontFamily) {
+            document.documentElement.style.setProperty('--font-family', `'${fontFamily}', sans-serif`);
+        }
+
+        function handleFontSizeChange(value) {
+            const customInput = document.getElementById('customFontSize');
+            if (value === 'custom') {
+                customInput.style.display = 'inline';
+            } else {
+                customInput.style.display = 'none';
+                document.documentElement.style.setProperty('--font-size', `${value}px`);
+            }
+        }
+
+        // Handle custom font size input
+        const customFontSize = document.getElementById('customFontSize');
+        customFontSize.addEventListener('input', function() {
+            document.documentElement.style.setProperty('--font-size', `${this.value}px`);
+        });
+
+        function updateLineHeight(value) {
+            if (value === 'custom') {
+                customLineHeightInput.style.display = 'inline';
+                value = customLineHeightInput.value;
+            } else {
+                customLineHeightInput.style.display = 'none';
+            }
+            document.documentElement.style.setProperty('--line-height', value);
+        }
+
+        function updateCustomLineHeight(value) {
+            document.documentElement.style.setProperty('--line-height', value);
+        }
+
+        // Statistics update
+        function updateStatistics() {
+            const text = editor.innerText;
+            const lines = text.split('\n').length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+
+            document.getElementById('lineCount').textContent = lines;
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('charCount').textContent = chars;
+        }
+
+        // Save content
+        function saveContent() {
+            const content = editor.innerText;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notepad-content.txt';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Update heading select based on current cursor position
+        function updateHeadingSelect() {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                let node = selection.getRangeAt(0).commonAncestorContainer;
+                
+                if (node.nodeType === 3) {
+                    node = node.parentNode;
+                }
+
+                while (node !== editor && node.parentNode !== editor) {
+                    node = node.parentNode;
+                }
+
+                const tagName = node.tagName ? node.tagName.toLowerCase() : 'p';
+                headingSelect.value = ['h1', 'h2', 'h3'].includes(tagName) ? tagName : 'p';
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            document.documentElement.setAttribute('data-theme',
+                document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+            );
+        }
+
+        // Custom colors
+        function updateColors(type, color) {
+            if (type === 'bg') {
+                document.documentElement.style.setProperty('--bg-color', color);
+            } else {
+                document.documentElement.style.setProperty('--text-color', color);
+            }
+        }
+
+        // Update headings list
+        function updateHeadingsList() {
+            const headings = editor.querySelectorAll('h1, h2, h3');
+            headingsList.innerHTML = '';
+            
+            headings.forEach((heading, index) => {
+                const headingItem = document.createElement('div');
+                headingItem.className = 'heading-item';
+                headingItem.textContent = heading.textContent || `Heading ${index + 1}`;
+                headingItem.style.paddingLeft = `${(parseInt(heading.tagName[1]) - 1) * 1}rem`;
+                
+                headingItem.onclick = () => heading.scrollIntoView({ behavior: 'smooth' });
+                headingsList.appendChild(headingItem);
+            });
+        }
+
+        // Event listeners
+        editor.addEventListener('input', () => {
+            updateHeadingsList();
+            updateHeadingSelect();
+            updateStatistics();
+        });
+
+        editor.addEventListener('keyup', updateHeadingSelect);
+        editor.addEventListener('click', updateHeadingSelect);
+        editor.addEventListener('mouseup', updateHeadingSelect);
+
+        // Initialize statistics
+        updateStatistics();
+    </script>
+</body>
+</html>
