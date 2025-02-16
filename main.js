@@ -250,5 +250,3 @@ editor.addEventListener('mouseup', updateHeadingSelect);
 
 // Initialize statistics
 updateStatistics();
-
-
