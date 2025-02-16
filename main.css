@@ -61,6 +61,8 @@ body {
 .headings-list {
     flex-grow: 1;
     overflow-y: auto;
+    border-top: 1px solid var(--text-color);
+    padding: 1rem;
 }
 
 .sidebar.collapsed .headings-list,
@@ -97,8 +99,6 @@ body {
     flex-wrap: wrap; /* Allows items to wrap if needed */
     overflow-x: auto;
 }
-
-
 
 .toolbar button,
 .toolbar select {
@@ -155,11 +155,22 @@ body {
 
 .heading-item {
     cursor: pointer;
-    padding: 0.25rem 0;
+    padding: 0.5rem 1rem; /* More balanced padding */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border-radius: 1px; /* Soft rounded corners */
+    transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
+    font-weight: 500; /* Slightly bolder text */
+    font-size: 1rem; /* Improve readability */
+    color: var(--text-color, #333); /* Use a variable or default color */
 }
+
+.heading-item:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Subtle hover effect */
+    color: var(--accent-color, #1f1f1f); /* Accent color on hover */
+}
+
 
 .line-height-control {
     display: flex;
@@ -188,3 +199,4 @@ body {
     line-height: 0.65;
     font-weight: bold;
 }
+
