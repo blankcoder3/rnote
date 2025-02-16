@@ -1,0 +1,192 @@
+:root {
+    --bg-color: #fefeff;
+    --text-color: #333333;
+    --menu-bg: #f5f5f5;
+    --toolbar-bg: #eeeeee;
+    --font-size: 16px;
+    --line-height: 1.5;
+    --font-family: 'Roboto', sans-serif;
+}
+
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --menu-bg: #2d2d2d;
+    --toolbar-bg: #333333;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    min-height: 100vh;
+}
+
+.sidebar {
+    background-color: var(--menu-bg);
+    padding: 1rem;
+    width: 250px;
+    transition: width 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.collapsed {
+    width: 50px;
+}
+
+.sidebar-toggle {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    background: none;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    cursor: pointer;
+    text-align: center;
+}
+
+.headings-list {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed .headings-list,
+.sidebar.collapsed .statistics {
+    display: none;
+}
+
+.statistics {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--text-color);
+}
+
+.statistics p {
+    margin: 0.2rem 0;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    /*font-size: 0.9rem;*/
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar {
+    background-color: var(--toolbar-bg);
+    padding: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping */
+    overflow-x: auto; /* Prevent overflow */
+    max-width: 100%; /* Ensure it fits the screen */
+    position: sticky; /* Keep it visible on scroll */
+    top: 0;
+    z-index: 1000;
+}
+
+
+.toolbar button,
+.toolbar select {
+    padding: 0.5rem 1rem;
+    background: none;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.toolbar button:hover,
+.toolbar select:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.color-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.color-group {
+    border: 1px solid var(--text-color);
+    padding: 0.199rem;
+}
+
+.color-picker label {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.color-picker input[type="color"] {
+    width: 24px;
+    height: 24px;
+    padding: 2px;
+    border: none;
+    cursor: pointer;
+}
+
+
+.editor {
+    flex-grow: 1;
+    padding: 1rem;
+    outline: none;
+    border: none;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    resize: none;
+}
+
+.heading-item {
+    cursor: pointer;
+    padding: 0.25rem 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.line-height-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.font-size-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.font-size-control input[type="number"],
+.line-height-control input[type="number"] {
+    width: 60px;
+}
+.editor.empty {
+    color: #999;
+}
+
+.editor p:first-of-type:first-letter {
+    float: left;
+    font-size: 4em;
+    padding: 0.1em 0.1em 0 0;
+    line-height: 0.65;
+    font-weight: bold;
+}
