@@ -76,14 +76,22 @@ function updateCustomLineHeight(value) {
 // Statistics update
 function updateStatistics() {
     const text = editor.innerText;
-    const lines = text.split('\n').length;
+    
+    // Count lines correctly (ignoring trailing empty lines)
+    const lines = text.trim().split(/\n+/).length;
+
+    // Count words correctly (already fine)
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    const chars = text.length;
+
+    // Count characters correctly (including spaces but ignoring newlines)
+    const chars = text.replace(/\n/g, '').length;
 
     document.getElementById('lineCount').textContent = lines;
     document.getElementById('wordCount').textContent = words;
     document.getElementById('charCount').textContent = chars;
 }
+
+
 
 // Save content
 function saveContent() {
